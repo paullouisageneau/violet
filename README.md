@@ -10,6 +10,10 @@ Violet is a lightweight STUN/TURN server ([RFC8489](https://tools.ietf.org/html/
 >
 > -- Charlie and the Chocolate Factory, Roald Dahl
 
+## Dependencies
+
+None!
+
 ## Building
 
 ### Clone repository and submodules

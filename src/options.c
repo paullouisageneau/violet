@@ -28,7 +28,7 @@ static char *alloc_string_copy(const char *src, size_t max) {
 
 void violet_options_init(violet_options_t *vopts) {
 	memset(vopts, 0, sizeof(*vopts));
-	vopts->log_level = JUICE_LOG_LEVEL_NONE;
+	vopts->log_level = JUICE_LOG_LEVEL_FATAL;
 	vopts->stun_only = false;
 	vopts->config.port = 3478;
 }

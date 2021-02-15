@@ -6,11 +6,9 @@
 #include <stdlib.h>
 
 typedef struct violet_options {
-	uint16_t port;
 	juice_log_level_t log_level;
-	juice_server_credentials_t *credentials;
-	int credentials_count;
-	int max_allocations;
+	juice_server_config_t config;
+	bool stun_only;
 } violet_options_t;
 
 void violet_options_init(violet_options_t *vopts);

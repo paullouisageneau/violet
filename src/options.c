@@ -6,24 +6,46 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define VIOLET_OPTIONS_COUNT 6
+#define VIOLET_OPTIONS_COUNT 9
+#define HELP_DESCRIPTION_OFFSET 24
+
+static char *alloc_string_copy(const char *src, size_t max) {
+	if (!src)
+		return NULL;
+
+	size_t len = strlen(src);
+	if (max > 0 && len > max)
+		len = max;
+
+	char *copy = malloc(len + 1);
+	if (!copy)
+		return NULL;
+
+	memcpy(copy, src, len);
+	copy[len] = '\0';
+	return copy;
+}
 
 void violet_options_init(violet_options_t *vopts) {
 	memset(vopts, 0, sizeof(*vopts));
 	vopts->log_level = JUICE_LOG_LEVEL_NONE;
-	vopts->port = 3478;
+	vopts->stun_only = false;
+	vopts->config.port = 3478;
 }
 
 void violet_options_destroy(violet_options_t *vopts) {
-	for(int i = 0; i < vopts->credentials_count; ++i) {
-		juice_server_credentials_t *credentials = vopts->credentials + i;
-		free((char*)credentials->username);
-		free((char*)credentials->password);
+	for (int i = 0; i < vopts->config.credentials_count; ++i) {
+		juice_server_credentials_t *credentials = vopts->config.credentials + i;
+		free((char *)credentials->username);
+		free((char *)credentials->password);
 	}
 
-	free(vopts->credentials);
-	vopts->credentials = NULL;
-	vopts->credentials_count = 0;
+	free((char *)vopts->config.bind_address);
+	free((char *)vopts->config.external_address);
+
+	free(vopts->config.credentials);
+	vopts->config.credentials = NULL;
+	vopts->config.credentials_count = 0;
 }
 
 static int on_help(violet_options_t *vopts, const char *arg);
@@ -39,7 +61,23 @@ static int on_port(violet_options_t *vopts, const char *arg) {
 	if (p <= 0)
 		return -1;
 
-	vopts->port = (uint16_t)p;
+	vopts->config.port = (uint16_t)p;
+	return 0;
+}
+
+static int on_bind(violet_options_t *vopts, const char *arg) {
+	if (*arg == '\0')
+		return -1;
+
+	vopts->config.bind_address = alloc_string_copy(arg, -1);
+	return 0;
+}
+
+static int on_external(violet_options_t *vopts, const char *arg) {
+	if (*arg == '\0')
+		return -1;
+
+	vopts->config.external_address = alloc_string_copy(arg, -1);
 	return 0;
 }
 
@@ -48,33 +86,29 @@ static int on_credentials(violet_options_t *vopts, const char *arg) {
 	if (!s)
 		return -1;
 
-	const char *username = arg;
-	const char *password = s + 1;
-	int username_len = s - arg;
-	int password_len = strlen(s);
+	if(vopts->stun_only)
+		return 0;
 
-	char *username_copy = malloc(username_len+1);
-	char *password_copy = malloc(password_len+1);
-	vopts->credentials = realloc(vopts->credentials, (vopts->credentials_count+1) * sizeof(juice_server_credentials_t));
-	if(!username_copy || !password_copy || !vopts->credentials) {
+	char *username = alloc_string_copy(arg, s - arg);
+	char *password = alloc_string_copy(s + 1, -1);
+	vopts->config.credentials =
+	    realloc(vopts->config.credentials,
+	            (vopts->config.credentials_count + 1) * sizeof(juice_server_credentials_t));
+	if (!username || !password || !vopts->config.credentials) {
 		fprintf(stderr, "Memory allocation for credentials failed\n");
-		free(username_copy);
-		free(password_copy);
-		free(vopts->credentials);
-		vopts->credentials_count = 0;
+		free(username);
+		free(password);
+		free(vopts->config.credentials);
+		vopts->config.credentials_count = 0;
 		return -1;
 	}
 
-	memcpy(username_copy, username, username_len);
-	username_copy[username_len] = '\0';
-	memcpy(password_copy, password, password_len);
-	password_copy[password_len] = '\0';
-
-	juice_server_credentials_t *credentials = vopts->credentials + vopts->credentials_count;
+	juice_server_credentials_t *credentials =
+	    vopts->config.credentials + vopts->config.credentials_count;
 	memset(credentials, 0, sizeof(*credentials));
-	credentials->username = username_copy;
-	credentials->password = password_copy;
-	++vopts->credentials_count;
+	credentials->username = username;
+	credentials->password = password;
+	++vopts->config.credentials_count;
 
 	return 0;
 }
@@ -84,10 +118,13 @@ static int on_quota(violet_options_t *vopts, const char *arg) {
 	if (n <= 0)
 		return -1;
 
-	if(vopts->credentials_count == 0)
+	if(vopts->stun_only)
+		return 0;
+
+	if (vopts->config.credentials_count == 0)
 		return -1;
 
-	vopts->credentials[vopts->credentials_count-1].allocations_quota = n;
+	vopts->config.credentials[vopts->config.credentials_count - 1].allocations_quota = n;
 	return 0;
 }
 
@@ -96,7 +133,21 @@ static int on_max(violet_options_t *vopts, const char *arg) {
 	if (n <= 0)
 		return -1;
 
-	vopts->max_allocations = n;
+	if(vopts->stun_only)
+		return 0;
+
+	vopts->config.max_allocations = n;
+	return 0;
+}
+
+static int on_stun_only(violet_options_t *vopts, const char *arg) {
+	(void)arg;
+	vopts->stun_only = true;
+
+	free(vopts->config.credentials);
+	vopts->config.credentials = NULL;
+	vopts->config.credentials_count = 0;
+	vopts->config.max_allocations = 0;
 	return 0;
 }
 
@@ -110,12 +161,14 @@ typedef struct violet_option_entry {
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
-    {'d', "debug", NULL, "Enable debug mode (default off)", on_debug},
+    {'d', "debug", NULL, "Enable debug mode (default disabled)", on_debug},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
-    {'c', "credentials", "USER:PASSWORD", "Add TURN credentials", on_credentials},
+    {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},
+    {'e', "external", "ADDRESS", "Avertise relay on ADDRESS (default local address)", on_external},
+    {'c', "credentials", "USER:PASSWORD", "Add TURN credentials (may be called multiple times)", on_credentials},
     {'q', "quota", "ALLOCATIONS", "Set an allocations quota for the last credentials", on_quota},
-	{'m', "max", "ALLOCATIONS", "Set the maximum number of allocations", on_max}
-};
+    {'m', "max", "ALLOCATIONS", "Set the maximum number of allocations", on_max},
+    {'s', "stun-only", NULL, "Disable TURN support", on_stun_only}};
 
 static const char *program_name = NULL;
 
@@ -126,12 +179,19 @@ static int on_help(violet_options_t *vopts, const char *arg) {
 
 	for (int i = 0; i < VIOLET_OPTIONS_COUNT; ++i) {
 		const violet_option_entry_t *entry = violet_options_map + i;
-		printf("  %c%c%s%s%c%s\t%s\n", entry->short_name ? '-' : ' ',
-		       entry->short_name ? entry->short_name : ' ', entry->long_name ? ", --" : " ",
-		       entry->long_name ? entry->long_name : "",
-		       entry->long_name && entry->arg_name ? '=' : ' ',
-		       entry->arg_name ? entry->arg_name : "\t",
-		       entry->description ? entry->description : "");
+		int ret = printf("  %c%c%s%s%c%s", entry->short_name ? '-' : ' ',
+		                 entry->short_name ? entry->short_name : ' ',
+		                 entry->long_name ? ", --" : " ", entry->long_name ? entry->long_name : "",
+		                 entry->long_name && entry->arg_name ? '=' : ' ',
+		                 entry->arg_name ? entry->arg_name : "");
+
+		if (entry->description) {
+			int offset = ret >= 0 ? HELP_DESCRIPTION_OFFSET - ret : 0;
+			while (offset-- > 0)
+				printf(" ");
+
+			printf("\t%s\n", entry->description);
+		}
 	}
 
 	printf("\n");

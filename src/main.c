@@ -42,13 +42,7 @@ int main(int argc, char *argv[]) {
 
 	juice_set_log_level(vopts.log_level);
 
-	juice_server_config_t config;
-	memset(&config, 0, sizeof(config));
-	config.credentials = vopts.credentials;
-	config.credentials_count = vopts.credentials_count;
-	config.max_allocations = vopts.max_allocations;
-
-	juice_server_t *server = juice_server_create(vopts.port, &config);
+	juice_server_t *server = juice_server_create(&vopts.config);
 	if (!server) {
 		fprintf(stderr, "Server initialization failed.\n");
 		violet_options_destroy(&vopts);

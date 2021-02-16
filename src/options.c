@@ -14,7 +14,7 @@ static char *alloc_string_copy(const char *src, size_t max) {
 		return NULL;
 
 	size_t len = strlen(src);
-	if (max > 0 && len > max)
+	if (max >= 0 && len > max)
 		len = max;
 
 	char *copy = malloc(len + 1);
@@ -41,7 +41,10 @@ void violet_options_destroy(violet_options_t *vopts) {
 	}
 
 	free((char *)vopts->config.bind_address);
+	vopts->config.bind_address = NULL;
+
 	free((char *)vopts->config.external_address);
+	vopts->config.external_address = NULL;
 
 	free(vopts->config.credentials);
 	vopts->config.credentials = NULL;

@@ -35,7 +35,7 @@ option(NO_EXAMPLES "Disable examples for libjuice" ON)
 add_subdirectory(deps/libjuice EXCLUDE_FROM_ALL)
 target_link_libraries(violet PRIVATE LibJuice::LibJuiceStatic)
 
-install(TARGETS violet LIBRARY DESTINATION bin)
+install(TARGETS violet RUNTIME DESTINATION bin)
 
 if(NOT MSVC)
 	target_compile_options(violet PRIVATE -Wall -Wextra)

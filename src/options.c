@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <getopt.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -14,7 +15,7 @@ static char *alloc_string_copy(const char *src, size_t max) {
 		return NULL;
 
 	size_t len = strlen(src);
-	if (max >= 0 && len > max)
+	if (len > max)
 		len = max;
 
 	char *copy = malloc(len + 1);
@@ -72,7 +73,7 @@ static int on_bind(violet_options_t *vopts, const char *arg) {
 	if (*arg == '\0')
 		return -1;
 
-	vopts->config.bind_address = alloc_string_copy(arg, -1);
+	vopts->config.bind_address = alloc_string_copy(arg, SIZE_MAX);
 	return 0;
 }
 
@@ -80,7 +81,7 @@ static int on_external(violet_options_t *vopts, const char *arg) {
 	if (*arg == '\0')
 		return -1;
 
-	vopts->config.external_address = alloc_string_copy(arg, -1);
+	vopts->config.external_address = alloc_string_copy(arg, SIZE_MAX);
 	return 0;
 }
 
@@ -93,7 +94,7 @@ static int on_credentials(violet_options_t *vopts, const char *arg) {
 		return 0;
 
 	char *username = alloc_string_copy(arg, s - arg);
-	char *password = alloc_string_copy(s + 1, -1);
+	char *password = alloc_string_copy(s + 1, SIZE_MAX);
 	vopts->config.credentials =
 	    realloc(vopts->config.credentials,
 	            (vopts->config.credentials_count + 1) * sizeof(juice_server_credentials_t));

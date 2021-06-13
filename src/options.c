@@ -7,9 +7,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define VIOLET_OPTIONS_COUNT 9
-#define HELP_DESCRIPTION_OFFSET 24
-
 static char *alloc_string_copy(const char *src, size_t max) {
 	if (!src)
 		return NULL;
@@ -66,6 +63,20 @@ static int on_port(violet_options_t *vopts, const char *arg) {
 		return -1;
 
 	vopts->config.port = (uint16_t)p;
+	return 0;
+}
+
+static int on_range(violet_options_t *vopts, const char *arg) {
+	uint16_t range_begin = 0;
+	uint16_t range_end = 0;
+	if(sscanf(arg, "%hu:%hu", &range_begin, &range_end) != 2)
+		return -1;
+
+	if(range_end < range_begin)
+		return -1;
+
+	vopts->config.relay_port_range_begin = range_begin;
+	vopts->config.relay_port_range_end = range_end;
 	return 0;
 }
 
@@ -163,10 +174,14 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
+#define VIOLET_OPTIONS_COUNT 10
+#define HELP_DESCRIPTION_OFFSET 24
+
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
     {'d', "debug", NULL, "Enable debug mode (default disabled)", on_debug},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
+    {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
     {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},
     {'e', "external", "ADDRESS", "Avertise relay on ADDRESS (default local address)", on_external},
     {'c', "credentials", "USER:PASS", "Add TURN credentials (may be called multiple times)", on_credentials},

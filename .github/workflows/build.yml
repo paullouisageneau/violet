@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: submodules
+      run: git submodule update --init --recursive
     - name: cmake
       run: cmake -B build -DWARNINGS_AS_ERRORS=1
     - name: make

@@ -1,0 +1,18 @@
+name: Build
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: cmake
+      run: cmake -B build -DWARNINGS_AS_ERRORS=1
+    - name: make
+      run: (cd build; make)
+

@@ -3,8 +3,10 @@
 
 #include <ctype.h>
 #include <getopt.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static char *alloc_string_copy(const char *src, size_t max) {
@@ -22,6 +24,21 @@ static char *alloc_string_copy(const char *src, size_t max) {
 	memcpy(copy, src, len);
 	copy[len] = '\0';
 	return copy;
+}
+
+char *trim_string(char *str) {
+	while (*str != '\0' && isspace(*str))
+		++str;
+
+	if (*str == '\0')
+		return str;
+
+	char *last = str + strlen(str) - 1;
+	while (last > str && isspace(*last))
+		--last;
+	*(last + 1) = '\0';
+
+	return str;
 }
 
 void violet_options_init(violet_options_t *vopts) {
@@ -51,6 +68,28 @@ void violet_options_destroy(violet_options_t *vopts) {
 
 static int on_help(violet_options_t *vopts, const char *arg);
 
+static int on_file(violet_options_t *vopts, const char *arg) {
+	FILE *file = fopen(arg, "r");
+	if (!file) {
+		fprintf(stderr, "Unable to open configuration file \"%s\"\n", arg);
+		goto error;
+	}
+
+	if (violet_options_from_file(file, vopts) != 0) {
+		goto error;
+	}
+
+	fclose(file);
+	return 0;
+
+error:
+	if (file)
+		fclose(file);
+
+	violet_options_destroy(vopts);
+	exit(EXIT_FAILURE);
+}
+
 static int on_debug(violet_options_t *vopts, const char *arg) {
 	(void)arg;
 	vopts->log_level = JUICE_LOG_LEVEL_VERBOSE;
@@ -69,10 +108,10 @@ static int on_port(violet_options_t *vopts, const char *arg) {
 static int on_range(violet_options_t *vopts, const char *arg) {
 	uint16_t range_begin = 0;
 	uint16_t range_end = 0;
-	if(sscanf(arg, "%hu:%hu", &range_begin, &range_end) != 2)
+	if (sscanf(arg, "%hu:%hu", &range_begin, &range_end) != 2)
 		return -1;
 
-	if(range_end < range_begin)
+	if (range_end < range_begin)
 		return -1;
 
 	vopts->config.relay_port_range_begin = range_begin;
@@ -101,7 +140,7 @@ static int on_credentials(violet_options_t *vopts, const char *arg) {
 	if (!s)
 		return -1;
 
-	if(vopts->stun_only)
+	if (vopts->stun_only)
 		return 0;
 
 	char *username = alloc_string_copy(arg, s - arg);
@@ -133,7 +172,7 @@ static int on_quota(violet_options_t *vopts, const char *arg) {
 	if (n <= 0)
 		return -1;
 
-	if(vopts->stun_only)
+	if (vopts->stun_only)
 		return 0;
 
 	if (vopts->config.credentials_count == 0)
@@ -148,7 +187,7 @@ static int on_max(violet_options_t *vopts, const char *arg) {
 	if (n <= 0)
 		return -1;
 
-	if(vopts->stun_only)
+	if (vopts->stun_only)
 		return 0;
 
 	vopts->config.max_allocations = n;
@@ -174,17 +213,19 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
-#define VIOLET_OPTIONS_COUNT 10
+#define VIOLET_OPTIONS_COUNT 11
 #define HELP_DESCRIPTION_OFFSET 24
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
+    {'f', "file", "FILE", "Read configuration from FILE", on_file},
     {'d', "debug", NULL, "Enable debug mode (default disabled)", on_debug},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
     {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},
     {'e', "external", "ADDRESS", "Avertise relay on ADDRESS (default local address)", on_external},
-    {'c', "credentials", "USER:PASS", "Add TURN credentials (may be called multiple times)", on_credentials},
+    {'c', "credentials", "USER:PASS", "Add TURN credentials (may be called multiple times)",
+     on_credentials},
     {'q', "quota", "ALLOCATIONS", "Set an allocations quota for the last credentials", on_quota},
     {'m', "max", "ALLOCATIONS", "Set the maximum number of allocations", on_max},
     {'s', "stun-only", NULL, "Disable TURN support", on_stun_only}};
@@ -219,10 +260,54 @@ static int on_help(violet_options_t *vopts, const char *arg) {
 }
 
 int violet_options_from_file(FILE *file, violet_options_t *vopts) {
-	// TODO
-	(void)file;
-	(void)vopts;
-	return -1;
+	char *line = NULL;
+	size_t size = 0;
+	ssize_t len;
+	while ((len = getline(&line, &size, file)) >= 0) {
+		char *str = trim_string(line);
+		if (str[0] == '\0')
+			continue; // blank line
+		if (str[0] == '#')
+			continue; // comment
+
+		const char *arg = NULL;
+		char *sep = strchr(str, '=');
+		if (sep) {
+			*sep = '\0';
+			arg = trim_string(sep + 1);
+		}
+		const char *name = trim_string(str);
+
+		int i = 0;
+		while (i < VIOLET_OPTIONS_COUNT) {
+			const violet_option_entry_t *entry = violet_options_map + i;
+			if (strcmp(entry->long_name, name) == 0) {
+				if (entry->arg_name && !arg) {
+					fprintf(stderr, "Option \"%s\" in file requires an argument.\n", name);
+					return -1;
+				}
+				if (!entry->arg_name && arg) {
+					fprintf(stderr, "Option \"%s\" in file does not expect an argument.\n", name);
+					return -1;
+				}
+				if (entry->callback && entry->callback(vopts, arg) < 0) {
+					fprintf(stderr, "Option \"%s\" in file cannot be set%s%s.\n", name,
+					        arg ? " to value " : "", arg ? arg : "");
+					return -1;
+				}
+				break;
+			}
+			++i;
+		}
+
+		if (i == VIOLET_OPTIONS_COUNT) {
+			fprintf(stderr, "Unknown option \"%s\" in file.\n", name);
+			return -1;
+		}
+	}
+
+	free(line);
+	return 0;
 }
 
 int violet_options_from_arg(int argc, char *argv[], violet_options_t *vopts) {

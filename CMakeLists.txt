@@ -37,15 +37,9 @@ target_link_libraries(violet PRIVATE LibJuice::LibJuiceStatic)
 
 install(TARGETS violet RUNTIME DESTINATION bin)
 
-if(NOT MSVC)
-	target_compile_options(violet PRIVATE -Wall -Wextra)
-endif()
+target_compile_options(violet PRIVATE -Wall -Wextra)
 
 if(WARNINGS_AS_ERRORS)
-	if(MSVC)
-		target_compile_options(violet PRIVATE /WX)
-	else()
-		target_compile_options(violet PRIVATE -Werror)
-	endif()
+	target_compile_options(violet PRIVATE -Werror)
 endif()
 

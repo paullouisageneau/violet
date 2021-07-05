@@ -107,7 +107,7 @@ error:
 	exit(EXIT_FAILURE);
 }
 
-static int on_debug(violet_options_t *vopts, const char *arg) {
+static int on_verbose(violet_options_t *vopts, const char *arg) {
 	(void)arg;
 	vopts->log_level = JUICE_LOG_LEVEL_VERBOSE;
 	return 0;
@@ -236,7 +236,7 @@ typedef struct violet_option_entry {
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
-    {'d', "debug", NULL, "Enable debug mode (default disabled)", on_debug},
+    {'v', "verbose", NULL, "Enable verbose logging (default disabled)", on_verbose},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
     {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},

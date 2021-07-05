@@ -43,7 +43,7 @@ static char *alloc_string_copy(const char *src, size_t max) {
 	return copy;
 }
 
-char *trim_string(char *str) {
+static char *trim_string(char *str) {
 	while (*str != '\0' && isspace(*str))
 		++str;
 
@@ -60,12 +60,17 @@ char *trim_string(char *str) {
 
 void violet_options_init(violet_options_t *vopts) {
 	memset(vopts, 0, sizeof(*vopts));
-	vopts->log_level = JUICE_LOG_LEVEL_FATAL;
+	vopts->log_level = JUICE_LOG_LEVEL_INFO;
+	vopts->log_filename = NULL;
+	vopts->daemon = false;
 	vopts->stun_only = false;
 	vopts->config.port = 3478;
 }
 
 void violet_options_destroy(violet_options_t *vopts) {
+	free((char *)vopts->log_filename);
+	vopts->log_filename = NULL;
+
 	for (int i = 0; i < vopts->config.credentials_count; ++i) {
 		juice_server_credentials_t *credentials = vopts->config.credentials + i;
 		free((char *)credentials->username);
@@ -105,6 +110,21 @@ error:
 
 	violet_options_destroy(vopts);
 	exit(EXIT_FAILURE);
+}
+
+static int on_log(violet_options_t *vopts, const char *arg) {
+	if (*arg == '\0')
+		return -1;
+
+	free((char *)vopts->log_filename);
+	vopts->log_filename = alloc_string_copy(arg, SIZE_MAX);
+	return 0;
+}
+
+static int on_daemon(violet_options_t *vopts, const char *arg) {
+	(void)arg;
+	vopts->daemon = true;
+	return 0;
 }
 
 static int on_verbose(violet_options_t *vopts, const char *arg) {
@@ -230,12 +250,14 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
-#define VIOLET_OPTIONS_COUNT 11
+#define VIOLET_OPTIONS_COUNT 13
 #define HELP_DESCRIPTION_OFFSET 24
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
+    {'l', "log", "FILE", "Write log to FILE", on_log},
+    {'d', "daemon", NULL, "Detach from terminal and run as daemon", on_daemon},
     {'v', "verbose", NULL, "Enable verbose logging (default disabled)", on_verbose},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
@@ -300,15 +322,15 @@ int violet_options_from_file(FILE *file, violet_options_t *vopts) {
 			const violet_option_entry_t *entry = violet_options_map + i;
 			if (strcmp(entry->long_name, name) == 0) {
 				if (entry->arg_name && !arg) {
-					fprintf(stderr, "Option \"%s\" in file requires an argument.\n", name);
+					fprintf(stderr, "Option \"%s\" in file requires an argument\n", name);
 					return -1;
 				}
 				if (!entry->arg_name && arg) {
-					fprintf(stderr, "Option \"%s\" in file does not expect an argument.\n", name);
+					fprintf(stderr, "Option \"%s\" in file does not expect an argument\n", name);
 					return -1;
 				}
 				if (entry->callback && entry->callback(vopts, arg) < 0) {
-					fprintf(stderr, "Option \"%s\" in file cannot be set%s%s.\n", name,
+					fprintf(stderr, "Option \"%s\" in file cannot be set%s%s\n", name,
 					        arg ? " to value " : "", arg ? arg : "");
 					return -1;
 				}
@@ -318,7 +340,7 @@ int violet_options_from_file(FILE *file, violet_options_t *vopts) {
 		}
 
 		if (i == VIOLET_OPTIONS_COUNT) {
-			fprintf(stderr, "Unknown option \"%s\" in file.\n", name);
+			fprintf(stderr, "Unknown option \"%s\" in file\n", name);
 			return -1;
 		}
 	}
@@ -370,16 +392,16 @@ int violet_options_from_arg(int argc, char *argv[], violet_options_t *vopts) {
 				const violet_option_entry_t *entry = violet_options_map + i;
 				if (entry->long_name == lo->name) {
 					if (entry->arg_name && !optarg) {
-						fprintf(stderr, "Option --%s requires an argument.\n", entry->long_name);
+						fprintf(stderr, "Option --%s requires an argument\n", entry->long_name);
 						return -1;
 					}
 					if (!entry->arg_name && optarg) {
-						fprintf(stderr, "Option --%s does not expect an argument.\n",
+						fprintf(stderr, "Option --%s does not expect an argument\n",
 						        entry->long_name);
 						return -1;
 					}
 					if (entry->callback && entry->callback(vopts, optarg) < 0) {
-						fprintf(stderr, "Option --%s cannot be set%s%s.\n", entry->long_name,
+						fprintf(stderr, "Option --%s cannot be set%s%s\n", entry->long_name,
 						        optarg ? " to value " : "", optarg ? optarg : "");
 						return -1;
 					}
@@ -391,15 +413,15 @@ int violet_options_from_arg(int argc, char *argv[], violet_options_t *vopts) {
 
 		switch (c) {
 		case ':':
-			fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+			fprintf(stderr, "Option -%c requires an argument\n", optopt);
 			return -1;
 			break;
 
 		case '?':
 			if (optopt == 0)
-				fprintf(stderr, "Unknown option %s.\n", argv[optind - 1]);
+				fprintf(stderr, "Unknown option %s\n", argv[optind - 1]);
 			else
-				fprintf(stderr, "Unknown option -%c.\n", optopt);
+				fprintf(stderr, "Unknown option -%c\n", optopt);
 
 			return -1;
 			break;
@@ -409,7 +431,7 @@ int violet_options_from_arg(int argc, char *argv[], violet_options_t *vopts) {
 				const violet_option_entry_t *entry = violet_options_map + i;
 				if (entry->short_name == c) {
 					if (entry->callback && entry->callback(vopts, optarg) < 0) {
-						fprintf(stderr, "Option -%c cannot be set%s%s.\n", entry->short_name,
+						fprintf(stderr, "Option -%c cannot be set%s%s\n", entry->short_name,
 						        optarg ? " to value " : "", optarg ? optarg : "");
 						return -1;
 					}

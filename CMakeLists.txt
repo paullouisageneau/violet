@@ -20,6 +20,7 @@ if(WIN32)
 endif()
 
 set(VIOLET_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/daemon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/options.c
 )

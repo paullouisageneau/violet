@@ -20,15 +20,19 @@ if(WIN32)
 endif()
 
 set(VIOLET_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/src/daemon.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/options.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/utils.c
 )
 
 set(VIOLET_HEADERS
-
+	${CMAKE_CURRENT_SOURCE_DIR}/src/daemon.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/options.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/utils.h
 )
 
-add_executable(violet ${VIOLET_SOURCES})
+add_executable(violet ${VIOLET_HEADERS} ${VIOLET_SOURCES})
 
 option(NO_TESTS "Disable tests for libjuice" ON)
 option(NO_EXAMPLES "Disable examples for libjuice" ON)

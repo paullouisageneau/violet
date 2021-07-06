@@ -17,6 +17,7 @@
  */
 
 #include "options.h"
+#include "utils.h"
 
 #include <ctype.h>
 #include <getopt.h>
@@ -60,7 +61,7 @@ static char *trim_string(char *str) {
 
 void violet_options_init(violet_options_t *vopts) {
 	memset(vopts, 0, sizeof(*vopts));
-	vopts->log_level = JUICE_LOG_LEVEL_INFO;
+	vopts->log_level = JUICE_LOG_LEVEL_FATAL;
 	vopts->log_filename = NULL;
 	vopts->daemon = false;
 	vopts->stun_only = false;
@@ -118,6 +119,15 @@ static int on_log(violet_options_t *vopts, const char *arg) {
 
 	free((char *)vopts->log_filename);
 	vopts->log_filename = alloc_string_copy(arg, SIZE_MAX);
+	return 0;
+}
+
+static int on_log_level(violet_options_t *vopts, const char *arg) {
+	juice_log_level_t level = string_to_log_level(arg);
+	if(level == JUICE_LOG_LEVEL_NONE)
+		return -1;
+
+	vopts->log_level = level;
 	return 0;
 }
 
@@ -250,15 +260,16 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
-#define VIOLET_OPTIONS_COUNT 13
+#define VIOLET_OPTIONS_COUNT 14
 #define HELP_DESCRIPTION_OFFSET 24
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
-    {'l', "log", "FILE", "Write log to FILE", on_log},
+    {'o', "log", "FILE", "Output log to FILE (default stdout)", on_log},
+    {'l', "log-level", "LEVEL", "Set log level to LEVEL: fatal (default), error, warn, info, debug, or verbose", on_log_level},
+    {'v', "verbose", NULL, "Set log level to verbose", on_verbose},
     {'d', "daemon", NULL, "Detach from terminal and run as daemon", on_daemon},
-    {'v', "verbose", NULL, "Enable verbose logging (default disabled)", on_verbose},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
     {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},

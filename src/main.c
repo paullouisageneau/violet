@@ -18,6 +18,7 @@
 
 #include "daemon.h"
 #include "options.h"
+#include "utils.h"
 
 #include <juice/juice.h>
 
@@ -27,8 +28,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
-static const char *log_level_to_string(juice_log_level_t level);
 
 static FILE *log_file = NULL;
 
@@ -105,19 +104,3 @@ error:
 	return EXIT_FAILURE;
 }
 
-static const char *log_level_to_string(juice_log_level_t level) {
-	switch (level) {
-	case JUICE_LOG_LEVEL_FATAL:
-		return "FATAL";
-	case JUICE_LOG_LEVEL_ERROR:
-		return "ERROR";
-	case JUICE_LOG_LEVEL_WARN:
-		return "WARN";
-	case JUICE_LOG_LEVEL_INFO:
-		return "INFO";
-	case JUICE_LOG_LEVEL_DEBUG:
-		return "DEBUG";
-	default:
-		return "VERBOSE";
-	}
-}

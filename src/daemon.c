@@ -83,8 +83,10 @@ int violet_fork_daemon() {
 	// Put pid to pipe
 	char buf[32];
 	int len = snprintf(buf, 32, "%d\n", pid);
-	if (len > 0)
-		write(pipe_in, buf, len);
+	if (len <= 0 || write(pipe_in, buf, len) <= 0) {
+		close(pipe_in);
+		exit(EXIT_FAILURE);
+	}
 
 	close(pipe_in);
 	return 0;

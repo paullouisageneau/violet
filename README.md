@@ -24,7 +24,7 @@ $ cd violet
 $ git submodule update --init --recursive
 ```
 
-### Building with CMake
+### Build with CMake
 
 ```bash
 $ cmake -B build
@@ -34,7 +34,17 @@ $ make -j2
 
 ### Running
 
+Running the TURN server with default options is as simple as:
 ```bash
-$ ./violet -c USER:PASSWORD
+$ ./violet --credentials USER:PASSWORD
 ```
+
+Available options can be listed with the `--help` (or `-h`) flag:
+```bash
+$ ./violet --help
+```
+
+### Links
+
+Violet is available as a [package on AUR](https://aur.archlinux.org/packages/violet/).
 

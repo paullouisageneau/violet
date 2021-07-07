@@ -3,11 +3,11 @@ Description=Violet lightweight STUN/TURN server
 After=network-online.target
 
 [Service]
-Type=forking
+Type=simple
 User=violet
 Group=violet
 UMask=002
-ExecStart=/usr/bin/violet -d -f /etc/violet/violet.conf
+ExecStart=/usr/bin/violet -f /etc/violet/violet.conf
 Restart=on-failure
 TimeoutStopSec=30
 

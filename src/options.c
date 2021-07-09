@@ -61,7 +61,7 @@ static char *trim_string(char *str) {
 
 void violet_options_init(violet_options_t *vopts) {
 	memset(vopts, 0, sizeof(*vopts));
-	vopts->log_level = JUICE_LOG_LEVEL_FATAL;
+	vopts->log_level = JUICE_LOG_LEVEL_INFO;
 	vopts->log_filename = NULL;
 	vopts->daemon = false;
 	vopts->stun_only = false;
@@ -267,7 +267,7 @@ static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
     {'o', "log", "FILE", "Output log to FILE (default stdout)", on_log},
-    {'l', "log-level", "LEVEL", "Set log level to LEVEL: fatal (default), error, warn, info, debug, or verbose", on_log_level},
+    {'l', "log-level", "LEVEL", "Set log level to LEVEL: fatal, error, warn, info (default), debug, or verbose", on_log_level},
     {'v', "verbose", NULL, "Set log level to verbose", on_verbose},
     {'d', "daemon", NULL, "Detach from terminal and run as daemon", on_daemon},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},

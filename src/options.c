@@ -276,8 +276,8 @@ static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'e', "external", "ADDRESS", "Avertise relay on ADDRESS (default local address)", on_external},
     {'c', "credentials", "USER:PASS", "Add TURN credentials (may be called multiple times)",
      on_credentials},
-    {'q', "quota", "ALLOCATIONS", "Set an allocations quota for the last credentials", on_quota},
-    {'m', "max", "ALLOCATIONS", "Set the maximum number of allocations", on_max},
+    {'q', "quota", "ALLOCATIONS", "Set an allocations quota for the last credentials (default none)", on_quota},
+    {'m', "max", "ALLOCATIONS", "Set the maximum number of allocations (default 1024)", on_max},
     {'s', "stun-only", NULL, "Disable TURN support", on_stun_only}};
 
 static const char *program_name = NULL;

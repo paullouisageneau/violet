@@ -90,6 +90,7 @@ void violet_options_destroy(violet_options_t *vopts) {
 }
 
 static int on_help(violet_options_t *vopts, const char *arg);
+static int on_version(violet_options_t *vopts, const char *arg);
 
 static int on_file(violet_options_t *vopts, const char *arg) {
 	FILE *file = fopen(arg, "r");
@@ -254,11 +255,12 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
-#define VIOLET_OPTIONS_COUNT 13
+#define VIOLET_OPTIONS_COUNT 14
 #define HELP_DESCRIPTION_OFFSET 24
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'h', "help", NULL, "Display this message", on_help},
+    {'v', "version", NULL, "Display the version", on_version},
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
     {'o', "log", "FILE", "Output log to FILE (default stdout)", on_log},
     {'l', "log-level", "LEVEL", "Set log level to LEVEL: fatal, error, warn, info (default), debug, or verbose", on_log_level},
@@ -298,6 +300,17 @@ static int on_help(violet_options_t *vopts, const char *arg) {
 	}
 
 	printf("\n");
+	violet_options_destroy(vopts);
+	exit(EXIT_SUCCESS);
+}
+
+static int on_version(violet_options_t *vopts, const char *arg) {
+	(void)vopts;
+	(void)arg;
+
+	const char *version = VIOLET_VERSION;
+	printf("violet version %s\n", version);
+
 	violet_options_destroy(vopts);
 	exit(EXIT_SUCCESS);
 }

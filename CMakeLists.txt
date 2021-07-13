@@ -33,6 +33,7 @@ set(VIOLET_HEADERS
 )
 
 add_executable(violet ${VIOLET_HEADERS} ${VIOLET_SOURCES})
+target_compile_definitions(violet PRIVATE VIOLET_VERSION="${PROJECT_VERSION}")
 
 option(NO_TESTS "Disable tests for libjuice" ON)
 option(NO_EXAMPLES "Disable examples for libjuice" ON)

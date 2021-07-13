@@ -40,8 +40,7 @@ static void log_handler(juice_log_level_t level, const char *message) {
 	char buffer[32];
 	if (!localtime_r(&t, &lt) || strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", &lt) == 0)
 		buffer[0] = '\0';
-
-	fprintf(file, "%s %s %s\n", buffer, log_level_to_string(level), message);
+	fprintf(file, "%s %-7s %s\n", buffer, log_level_to_string(level), message);
 	fflush(file);
 }
 

@@ -137,12 +137,6 @@ static int on_daemon(violet_options_t *vopts, const char *arg) {
 	return 0;
 }
 
-static int on_verbose(violet_options_t *vopts, const char *arg) {
-	(void)arg;
-	vopts->log_level = JUICE_LOG_LEVEL_VERBOSE;
-	return 0;
-}
-
 static int on_port(violet_options_t *vopts, const char *arg) {
 	int p = atoi(arg);
 	if (p <= 0)
@@ -260,7 +254,7 @@ typedef struct violet_option_entry {
 	int (*callback)(violet_options_t *violet_options, const char *value);
 } violet_option_entry_t;
 
-#define VIOLET_OPTIONS_COUNT 14
+#define VIOLET_OPTIONS_COUNT 13
 #define HELP_DESCRIPTION_OFFSET 24
 
 static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
@@ -268,7 +262,6 @@ static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'f', "file", "FILE", "Read configuration from FILE", on_file},
     {'o', "log", "FILE", "Output log to FILE (default stdout)", on_log},
     {'l', "log-level", "LEVEL", "Set log level to LEVEL: fatal, error, warn, info (default), debug, or verbose", on_log_level},
-    {'v', "verbose", NULL, "Set log level to verbose", on_verbose},
     {'d', "daemon", NULL, "Detach from terminal and run as daemon", on_daemon},
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},

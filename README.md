@@ -1,6 +1,6 @@
 # Violet - Lightweight STUN/TURN server
 
-Violet is a lightweight STUN/TURN server ([RFC8489](https://tools.ietf.org/html/rfc8489) and [RFC8656](https://tools.ietf.org/html/rfc8656)) based on [libjuice](https://github.com/paullouisageneau/libjuice).
+Violet is a lightweight STUN/TURN server ([RFC8489](https://tools.ietf.org/html/rfc8489) and [RFC8656](https://tools.ietf.org/html/rfc8656)) written in C without dependencies, based on [libjuice](https://github.com/paullouisageneau/libjuice).
 
 ![Oompa-Loompas rolling Violet, from Charlie and the Chocolate Factory](https://github.com/paullouisageneau/violet/blob/master/image.png?raw=true)
 
@@ -32,7 +32,7 @@ $ cd build
 $ make -j2
 ```
 
-### Running
+## Running
 
 Running the TURN server with default options is as simple as:
 ```bash
@@ -44,7 +44,7 @@ Available options can be listed with the `--help` (or `-h`) flag:
 $ ./violet --help
 ```
 
-### Links
+## Links
 
 Violet is available as a [package on AUR](https://aur.archlinux.org/packages/violet/).
 

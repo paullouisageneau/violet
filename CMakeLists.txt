@@ -50,6 +50,9 @@ if (NOT MSVC)
 endif()
 
 if(WARNINGS_AS_ERRORS)
-	target_compile_options(violet PRIVATE -Werror)
+if(MSVC)
+    target_compile_options(violet PRIVATE /WX)
+else()
+    target_compile_options(violet PRIVATE -Werror)
 endif()
-
+endif()

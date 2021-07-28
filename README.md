@@ -29,7 +29,7 @@ $ git submodule update --init --recursive
 ```bash
 $ cmake -B build
 $ cd build
-$ make -j2
+$ cmake --build .
 ```
 
 ## Running

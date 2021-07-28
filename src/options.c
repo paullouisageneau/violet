@@ -20,12 +20,18 @@
 #include "utils.h"
 
 #include <ctype.h>
-#include <getopt.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#else
+#include <getopt.h>
+#endif
 
 static char *alloc_string_copy(const char *src, size_t max) {
 	if (!src)

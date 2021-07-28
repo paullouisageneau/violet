@@ -19,7 +19,14 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef _MSC_VER
+//#include <minwindef.h>
+typedef unsigned long DWORD;
+typedef DWORD pid_t;
+#else
 #include <unistd.h>
+#endif
 
 static void signal_handler(int sig) { (void)sig; }
 

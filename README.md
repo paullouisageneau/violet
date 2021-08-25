@@ -36,7 +36,7 @@ $ make -j2
 
 Running the TURN server with default options is as simple as:
 ```bash
-$ ./violet --credentials USER:PASSWORD
+$ ./violet --credentials=USER:PASSWORD
 ```
 
 Available options can be listed with the `--help` (or `-h`) flag:

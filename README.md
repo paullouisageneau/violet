@@ -1,6 +1,6 @@
 # Violet - Lightweight STUN/TURN server
 
-[![Join the chat at https://gitter.im/libjuice/violet](https://badges.gitter.im/libjuice/violet.svg)](https://gitter.im/libjuice/violet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build](https://github.com/paullouisageneau/violet/actions/workflows/build.yml/badge.svg)](https://github.com/paullouisageneau/violet/actions/workflows/build.yml) [![Join the chat at https://gitter.im/libjuice/violet](https://badges.gitter.im/libjuice/violet.svg)](https://gitter.im/libjuice/violet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Violet is a lightweight STUN/TURN server ([RFC8489](https://tools.ietf.org/html/rfc8489) and [RFC8656](https://tools.ietf.org/html/rfc8656)) written in C without dependencies, based on [libjuice](https://github.com/paullouisageneau/libjuice).
 

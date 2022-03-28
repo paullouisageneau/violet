@@ -4,7 +4,7 @@
 [![Join the chat at https://gitter.im/libjuice/violet](https://badges.gitter.im/libjuice/violet.svg)](https://gitter.im/libjuice/violet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Discord](https://img.shields.io/discord/903257095539925006?logo=discord)](https://discord.gg/jXAP8jp3Nn)
 
-Violet is a lightweight STUN/TURN server ([RFC8489](https://tools.ietf.org/html/rfc8489) and [RFC8656](https://tools.ietf.org/html/rfc8656)) written in C without dependencies, based on [libjuice](https://github.com/paullouisageneau/libjuice).
+Violet is a lightweight STUN/TURN server ([RFC8489](https://datatracker.ietf.org/doc/html/rfc8489) and [RFC8656](https://datatracker.ietf.org/doc/html/rfc8656)) written in C without dependencies, based on [libjuice](https://github.com/paullouisageneau/libjuice).
 
 ![Oompa-Loompas rolling Violet, from Charlie and the Chocolate Factory](https://github.com/paullouisageneau/violet/blob/master/image.png?raw=true)
 

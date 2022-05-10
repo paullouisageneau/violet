@@ -6,6 +6,8 @@
 
 Violet is a lightweight STUN/TURN server ([RFC8489](https://www.rfc-editor.org/rfc/rfc8489.html) and [RFC8656](https://www.rfc-editor.org/rfc/rfc8656.html)) written in C without dependencies, based on [libjuice](https://github.com/paullouisageneau/libjuice).
 
+Violet is licensed under GPLv2 or later, see [LICENSE](https://github.com/paullouisageneau/violet/blob/master/LICENSE).
+
 ![Oompa-Loompas rolling Violet, from Charlie and the Chocolate Factory](https://github.com/paullouisageneau/violet/blob/master/image.png?raw=true)
 
 > "Mercy! Save us!" yelled Mrs Beauregarde. "[...] Violet, you’re **turn**ing violet, Violet!" [...]

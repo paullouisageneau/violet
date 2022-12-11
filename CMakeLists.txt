@@ -6,9 +6,11 @@ project(violet
 set(PROJECT_DESCRIPTION "Lightweight STUN/TURN server")
 
 # Options
+option(USE_SYSTEM_JUICE "Use system libjuice" OFF)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
 set(C_STANDARD 11)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(WIN32)
 	add_definitions(-DWIN32_LEAN_AND_MEAN)
@@ -35,10 +37,15 @@ set(VIOLET_HEADERS
 add_executable(violet ${VIOLET_HEADERS} ${VIOLET_SOURCES})
 target_compile_definitions(violet PRIVATE VIOLET_VERSION="${PROJECT_VERSION}")
 
-option(NO_TESTS "Disable tests for libjuice" ON)
-option(NO_EXAMPLES "Disable examples for libjuice" ON)
-add_subdirectory(deps/libjuice EXCLUDE_FROM_ALL)
-target_link_libraries(violet PRIVATE LibJuice::LibJuiceStatic)
+if(USE_SYSTEM_JUICE)
+	find_package(LibJuice REQUIRED)
+	target_link_libraries(violet PRIVATE LibJuice::LibJuice)
+else()
+	option(NO_TESTS "Disable tests for libjuice" ON)
+	option(NO_EXAMPLES "Disable examples for libjuice" ON)
+	add_subdirectory(deps/libjuice EXCLUDE_FROM_ALL)
+	target_link_libraries(violet PRIVATE LibJuice::LibJuiceStatic)
+endif()
 
 install(TARGETS violet RUNTIME DESTINATION bin)
 

@@ -2,6 +2,7 @@
 
 [![License: GPL v2 or later](https://img.shields.io/badge/License-GPL_v2_or_later-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Build](https://github.com/paullouisageneau/violet/actions/workflows/build.yml/badge.svg)](https://github.com/paullouisageneau/violet/actions/workflows/build.yml)
+[![Docker](https://img.shields.io/docker/v/paullouisageneau/violet/latest?color=2497ed&label=Docker)](https://hub.docker.com/repository/docker/paullouisageneau/violet)
 [![Gitter](https://badges.gitter.im/libjuice/violet.svg)](https://gitter.im/libjuice/violet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Discord](https://img.shields.io/discord/903257095539925006?logo=discord)](https://discord.gg/jXAP8jp3Nn)
 

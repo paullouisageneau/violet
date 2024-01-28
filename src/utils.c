@@ -17,7 +17,12 @@
 
 #include "utils.h"
 
+#ifdef _MSC_VER
+#include <string.h>
+#define strcasecmp _stricmp
+#else
 #include <strings.h>
+#endif
 
 const char *log_level_to_string(juice_log_level_t level) {
 	switch (level) {

@@ -26,7 +26,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef _MSC_VER
+#include <processthreadsapi.h>
+#define localtime_r(timer, buf) localtime_s(buf, timer)
+#else
 #include <unistd.h>
+#endif
 
 static FILE *log_file = NULL;
 
@@ -84,7 +89,11 @@ int main(int argc, char *argv[]) {
 		goto error;
 	}
 
+#ifdef _MSC_VER
+    SuspendThread(/*TODO*/);
+#else
 	pause();
+#endif
 
 	juice_server_destroy(server);
 

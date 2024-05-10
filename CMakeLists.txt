@@ -9,7 +9,7 @@ set(PROJECT_DESCRIPTION "Lightweight STUN/TURN server")
 option(USE_SYSTEM_JUICE "Use system libjuice" OFF)
 option(WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
-set(C_STANDARD 11)
+set(CMAKE_C_STANDARD 11)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(WIN32)

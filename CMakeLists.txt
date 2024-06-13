@@ -27,12 +27,14 @@ set(VIOLET_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/src/options.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils.c
 )
+source_group("Source Files" FILES "${VIOLET_SOURCES}")
 
 set(VIOLET_HEADERS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/daemon.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/options.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/utils.h
 )
+source_group("Header Files" FILES "${VIOLET_HEADERS}")
 
 add_executable(violet ${VIOLET_HEADERS} ${VIOLET_SOURCES})
 target_compile_definitions(violet PRIVATE VIOLET_VERSION="${PROJECT_VERSION}")
@@ -49,9 +51,15 @@ endif()
 
 install(TARGETS violet RUNTIME DESTINATION bin)
 
-target_compile_options(violet PRIVATE -Wall -Wextra)
-
-if(WARNINGS_AS_ERRORS)
-	target_compile_options(violet PRIVATE -Werror)
+target_compile_options(violet PRIVATE -Wall)
+if (NOT MSVC)
+	target_compile_options(violet PRIVATE -Wextra)
 endif()
 
+if(WARNINGS_AS_ERRORS)
+if(MSVC)
+    target_compile_options(violet PRIVATE /WX)
+else()
+    target_compile_options(violet PRIVATE -Werror)
+endif()
+endif()

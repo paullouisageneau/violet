@@ -18,6 +18,10 @@ Violet is licensed under GPLv2 or later, see [LICENSE](https://github.com/paullo
 >
 > -- Charlie and the Chocolate Factory, Roald Dahl
 
+## Dependencies
+
+No external dependencies!
+
 ## Running with Docker
 
 An image is available on [Docker Hub](https://hub.docker.com/repository/docker/paullouisageneau/violet), running the TURN server with default options is as simple as:

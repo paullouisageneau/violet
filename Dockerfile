@@ -17,4 +17,4 @@ RUN apk update --no-cache; \
 
 COPY --from=builder /usr/src/violet/build/violet /usr/local/bin/
 
-CMD [ "/usr/local/bin/violet" ]
+ENTRYPOINT [ "/usr/local/bin/violet" ]

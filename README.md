@@ -18,41 +18,63 @@ Violet is licensed under GPLv2 or later, see [LICENSE](https://github.com/paullo
 >
 > -- Charlie and the Chocolate Factory, Roald Dahl
 
-## Dependencies
+## Running with Docker
 
-None!
+An image is available on [Docker Hub](https://hub.docker.com/repository/docker/paullouisageneau/violet), running the TURN server with default options is as simple as:
+```bash
+docker run paullouisageneau/violet --credentials=USER:PASSWORD
+```
+Available options can be listed with the `--help` flag:
+```bash
+docker run paullouisageneau/violet --help
+```
+
+## Installing on Arch Linux
+
+Violet is available as a [package on AUR](https://aur.archlinux.org/packages/violet/):
+```bash
+paru -S violet
+sudo systemctl enable --now violet
+```
+The configuration file is `/etc/violet/violet.conf`
 
 ## Building
 
 ### Clone repository and submodules
 
 ```bash
-$ git clone https://github.com/paullouisageneau/violet.git
-$ cd violet
-$ git submodule update --init --recursive
+git clone https://github.com/paullouisageneau/violet.git
+cd violet
+git submodule update --init --recursive
 ```
 
 ### Build with CMake
 
 ```bash
-$ cmake -B build
-$ cd build
-$ make -j2
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cd build
+make -j2
 ```
-
-## Running
-
-Running the TURN server with default options is as simple as:
 ```bash
-$ ./violet --credentials=USER:PASSWORD
+./violet --credentials=USER:PASSWORD
 ```
-
-Available options can be listed with the `--help` (or `-h`) flag:
+You can list available options with the `--help` (or `-h`) flag. You can also load a configuration file:
 ```bash
-$ ./violet --help
+./violet -f ../example.conf
 ```
 
-## Links
+### Build with Docker
 
-Violet is available as a [package on AUR](https://aur.archlinux.org/packages/violet/).
+```bash
+docker build -t violet .
+```
+```bash
+docker run violet --credentials=USER:PASSWORD
+```
+You can list available options with the `--help` flag. You can also load a configuration file:
+```bash
+docker run \
+	--mount type=bind,source=$(pwd)/example.conf,target=/etc/violet.conf,readonly \
+	paullouisageneau/violet --file=/etc/violet.conf
+```
 

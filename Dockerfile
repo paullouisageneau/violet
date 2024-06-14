@@ -1,4 +1,4 @@
-FROM alpine:3.16 as builder
+FROM alpine:3.20 as builder
 
 RUN apk update --no-cache; \
     apk add --no-cache cmake make gcc musl-dev;
@@ -10,7 +10,7 @@ RUN cmake -B build; \
     cd build; \
     make -j2
 
-FROM alpine:3.16 as app
+FROM alpine:3.20 as app
 
 RUN apk update --no-cache; \
     apk add --no-cache musl;

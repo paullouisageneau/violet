@@ -26,7 +26,7 @@ No external dependencies!
 
 An image is available on [Docker Hub](https://hub.docker.com/repository/docker/paullouisageneau/violet), running the TURN server with default options is as simple as:
 ```bash
-docker run paullouisageneau/violet --credentials=USER:PASSWORD
+docker run --network=host paullouisageneau/violet --credentials=USER:PASSWORD
 ```
 Available options can be listed with the `--help` flag:
 ```bash
@@ -73,11 +73,12 @@ You can list available options with the `--help` (or `-h`) flag. You can also lo
 docker build -t violet .
 ```
 ```bash
-docker run violet --credentials=USER:PASSWORD
+docker run --network=host violet --credentials=USER:PASSWORD
 ```
 You can list available options with the `--help` flag. You can also load a configuration file:
 ```bash
 docker run \
+	--network=host \
 	--mount type=bind,source=$(pwd)/example.conf,target=/etc/violet.conf,readonly \
 	paullouisageneau/violet --file=/etc/violet.conf
 ```

@@ -267,7 +267,7 @@ static const violet_option_entry_t violet_options_map[VIOLET_OPTIONS_COUNT] = {
     {'p', "port", "PORT", "UDP port to listen on (default 3478)", on_port},
     {'r', "range", "BEGIN:END", "UDP port range for relay (default automatic)", on_range},
     {'b', "bind", "ADDRESS", "Bind only on ADDRESS (default any address)", on_bind},
-    {'e', "external", "ADDRESS", "Avertise relay on ADDRESS (default local address)", on_external},
+    {'e', "external", "ADDRESS", "Advertise relay on ADDRESS (default local address)", on_external},
     {'c', "credentials", "USER:PASS", "Add TURN credentials (may be called multiple times)",
      on_credentials},
     {'q', "quota", "ALLOCATIONS", "Set an allocations quota for the last credentials (default none)", on_quota},

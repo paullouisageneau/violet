@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10)
 project(violet
 	VERSION 0.5.3
 	LANGUAGES C)

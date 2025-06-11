@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(violet
-	VERSION 0.5.3
+	VERSION 0.5.4
 	LANGUAGES C)
 
 set(PROJECT_DESCRIPTION "Lightweight STUN/TURN server")
